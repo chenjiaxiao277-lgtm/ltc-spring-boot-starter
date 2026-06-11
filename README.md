@@ -268,3 +268,47 @@ public class TaskController {
 
 确保 `application.yml` 里配置了 `ltc.inner.url` 和 `ltc.inner.secret`，
 并且你的项目里有一个实现了 `LtcUserSyncHandler` 接口的 `@Component`。
+
+
+
+
+发给 codeX 的接入说明，让他做这三步：
+
+1. 本地 install（暂无私服时）
+
+git clone https://github.com/chenjiaxiao277-lgtm/ltc-spring-boot-starter.git
+cd ltc-spring-boot-starter
+mvn clean install
+2. 在自己项目 pom.xml 加依赖
+
+<dependency>
+    <groupId>com.tranyu</groupId>
+    <artifactId>ltc-spring-boot-starter</artifactId>
+    <version>1.0.0</version>
+</dependency>
+3. 配置 application.yml
+
+ltc:
+  auth:
+    enabled: true
+    exchange-url: https://ltc.tranyu.com/ltc/v1.0/auth/exchange-code
+    me-url: https://ltc.tranyu.com/ltc/v1.0/customer/me
+    allow-fallback-header: false
+  inner:
+    url: https://ltc.tranyu.com/ltc/v1.0/inner/user/list
+    secret: your-inner-secret
+4. 实现人员同步接口
+
+@Component
+public class MyUserSyncHandler implements LtcUserSyncHandler {
+    @Override
+    public void onUserList(List<LtcInnerUser> users) {
+        // 存到自己的用户表
+    }
+}
+5. Controller 直接用
+
+@GetMapping("/example")
+public Result example(@CurrentUser LtcUserContext user) {
+    Long userId = user.getTargetId();
+}
